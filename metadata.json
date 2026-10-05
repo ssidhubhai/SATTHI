@@ -1,0 +1,6 @@
+{
+  "name": "SATTHI - Local On-Demand Services",
+  "description": "Hyperlocal on-demand home services connecting residents with nearby verified independent electricians, plumbers, carpenters, and technicians in real time.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
