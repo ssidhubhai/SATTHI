@@ -12,7 +12,10 @@ export const BottomNav: React.FC = () => {
     currentScreen === 'matching-radar' ||
     currentScreen === 'live-tracking' ||
     currentScreen === 'service-invoice' ||
-    currentScreen === 'provider-active-job';
+    currentScreen === 'provider-active-job' ||
+    currentScreen === 'provider-landing' ||
+    currentScreen === 'provider-register' ||
+    currentScreen === 'provider-login';
 
   if (isStackScreen) {
     return null;

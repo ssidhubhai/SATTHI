@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 
 export const RoleSwitcher: React.FC = () => {
-  const { role, setRole, activeRequest, resetDemoState } = useApp();
+  const { role, setRole, activeRequest, resetDemoState, navigateTo } = useApp();
   const [collapsed, setCollapsed] = useState(false);
 
   const hasActiveJob =
@@ -91,6 +91,19 @@ export const RoleSwitcher: React.FC = () => {
             <span>Order #{activeRequest.id} is {activeRequest.status}</span>
           </div>
         )}
+
+        <div className="pt-1 border-t border-white/10 flex items-center justify-between text-[10px] text-white/70 px-1">
+          <span>Portal Entry:</span>
+          <button
+            onClick={() => {
+              setRole('provider');
+              navigateTo('provider-landing');
+            }}
+            className="text-primary-fixed hover:underline font-bold cursor-pointer"
+          >
+            /provider portal
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,20 +1,73 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 
 export const ProviderProfileView: React.FC = () => {
-  const { setRole, navigateTo, resetDemoState, cityConfig } = useApp();
+  const { providerProfile, updateProviderProfile, setRole, navigateTo, resetDemoState, cityConfig, showToast } = useApp();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editBio, setEditBio] = useState(providerProfile.description || providerProfile.bio || '');
+  const [editRadius, setEditRadius] = useState(providerProfile.serviceRadiusKm || 3.5);
+  const [editVisitFee, setEditVisitFee] = useState(providerProfile.pricing?.visitInspectionFee ?? providerProfile.visitFee ?? 99);
+  const [editLaborFee, setEditLaborFee] = useState(providerProfile.pricing?.startingLaborRate ?? 220);
+
+  const handleSaveProfile = () => {
+    updateProviderProfile({
+      description: editBio,
+      bio: editBio,
+      serviceRadiusKm: editRadius,
+      visitFee: editVisitFee,
+      pricing: {
+        visitInspectionFee: editVisitFee,
+        startingLaborRate: editLaborFee,
+        emergencyAvailable: providerProfile.pricing?.emergencyAvailable ?? true,
+      },
+    });
+    setIsEditing(false);
+    showToast('Provider profile updated successfully!', 'success', 'check_circle');
+  };
+
+  const getVerificationBadge = () => {
+    switch (providerProfile.verificationStatus) {
+      case 'VERIFIED':
+        return {
+          label: 'VERIFIED PRO',
+          bg: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+          icon: 'verified',
+        };
+      case 'UNDER_REVIEW':
+        return {
+          label: 'UNDER REVIEW (SANDBOX APPROVED)',
+          bg: 'bg-amber-100 text-amber-800 border-amber-300',
+          icon: 'pending',
+        };
+      case 'NEEDS_ACTION':
+        return {
+          label: 'NEEDS ACTION',
+          bg: 'bg-error-container text-error border-error/30',
+          icon: 'warning',
+        };
+      default:
+        return {
+          label: 'DEMO PRO',
+          bg: 'bg-primary/10 text-primary border-primary/20',
+          icon: 'badge',
+        };
+    }
+  };
+
+  const badge = getVerificationBadge();
 
   return (
     <div className="flex flex-col w-full max-w-2xl mx-auto pb-32">
       <div className="px-margin pt-space-md flex flex-col gap-space-md">
         {/* Profile Card */}
         <div className="bg-surface-container-lowest rounded-2xl p-space-md shadow-xs border border-surface-container/60 flex flex-col gap-space-md">
-          <div className="flex items-center gap-space-md">
-            <div className="relative">
+          <div className="flex items-start gap-space-md">
+            <div className="relative shrink-0">
               <img
-                className="w-16 h-16 rounded-2xl object-cover bg-surface-container"
-                alt="Rahul Kumar"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuALC5v_Pg92yXeMQ7zt1CR9eNPLsBl1gIAsWsig1StwYvFD19yXWcj3dBoUhNaF0_aTVckhbqRIYeA_4LIPFhDZEH3OL0bsz70beEPmamW09s2hZk8kmJ5xrr1gDb-_n5byP5mJPuRGZKDM0h7MdRfqz_mHM6rpXVenJjbnDmSGZEjP1gVDHSAUKWnBZ6_IPcFeuzo2hB83Ldd8r-4FQvDcRx1G1DVbqAp76WsAMImvcVdN7Gg8-sbJ"
+                className="w-16 h-16 rounded-2xl object-cover bg-surface-container ring-1 ring-surface-container-high"
+                alt={providerProfile.fullName}
+                src={providerProfile.avatarUrl}
               />
               <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[11px] shadow-xs">
                 <span className="material-symbols-outlined text-[13px]">check</span>
@@ -22,23 +75,32 @@ export const ProviderProfileView: React.FC = () => {
             </div>
 
             <div className="flex flex-col min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <h1 className="font-headline-sm text-headline-sm text-on-surface font-bold truncate">
-                  Rahul Kumar
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="font-headline-sm text-base font-bold text-on-surface truncate">
+                  {providerProfile.fullName}
                 </h1>
-                <span className="bg-primary-fixed text-on-primary-fixed font-label-sm text-[10px] px-2 py-0.5 rounded-full font-bold">
-                  PRO MASTER
+                <span className={`font-label-sm text-[10px] px-2 py-0.5 rounded-full font-bold border flex items-center gap-1 ${badge.bg}`}>
+                  <span className="material-symbols-outlined text-[12px]">{badge.icon}</span>
+                  <span>{badge.label}</span>
                 </span>
               </div>
-              <p className="font-body-sm text-body-sm text-on-surface-variant">
-                Master Electrician · ID: SAT-TECH-9014
+              <p className="font-body-sm text-xs text-on-surface-variant capitalize mt-0.5">
+                {providerProfile.tradeCategory} · {providerProfile.yearsExperience} yrs experience
               </p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="font-label-sm text-label-sm text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full font-semibold">
-                  Demo Screening: Mock ID &amp; Skill Checked
+              <div className="flex items-center gap-2 mt-1 text-[11px] text-secondary">
+                <span className="flex items-center gap-0.5">
+                  <span className="material-symbols-outlined text-[14px] text-primary">near_me</span>
+                  <span>{providerProfile.primaryLocality} ({providerProfile.serviceRadiusKm} km coverage)</span>
                 </span>
               </div>
             </div>
+
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-xs font-bold text-on-surface cursor-pointer shrink-0 transition-colors"
+            >
+              {isEditing ? 'Cancel' : 'Edit'}
+            </button>
           </div>
 
           {/* Prototype Honest Disclaimer */}
@@ -48,96 +110,219 @@ export const ProviderProfileView: React.FC = () => {
               <span>Demo Screening Sandbox Notice</span>
             </div>
             <p className="text-[11px] leading-relaxed text-amber-900">
-              Provider credentials, licenses, and background checks shown here are simulated prototype data for workflow demonstration. They do not constitute official government (UIDAI) or police database certifications.
+              Provider credentials, licenses, and background checks shown here are simulated prototype records. They do not constitute official government (UIDAI) or police database certifications.
             </p>
           </div>
 
+          {/* Performance Stats Strip */}
           <div className="grid grid-cols-3 gap-2 bg-surface-container-low rounded-xl p-3 text-center border border-surface-container">
             <div className="flex flex-col">
-              <span className="font-data-metric text-data-metric text-on-surface">4.94</span>
-              <span className="font-label-sm text-label-sm text-on-surface-variant font-medium">Rating (340)</span>
+              <span className="font-data-metric text-base font-bold text-on-surface">
+                {(providerProfile.stats?.rating ?? providerProfile.rating ?? 4.95).toFixed(2)}
+              </span>
+              <span className="font-label-sm text-[11px] text-secondary">
+                Rating ({providerProfile.stats?.reviewCount ?? providerProfile.reviewCount ?? 184})
+              </span>
             </div>
             <div className="flex flex-col">
-              <span className="font-data-metric text-data-metric text-emerald-700">99.4%</span>
-              <span className="font-label-sm text-label-sm text-on-surface-variant font-medium">On-Time</span>
+              <span className="font-data-metric text-base font-bold text-emerald-700">
+                {providerProfile.stats?.onTimeRate ?? '100%'}
+              </span>
+              <span className="font-label-sm text-[11px] text-secondary">On-Time</span>
             </div>
             <div className="flex flex-col">
-              <span className="font-data-metric text-data-metric text-primary">₹0 Cut</span>
-              <span className="font-label-sm text-label-sm text-on-surface-variant font-medium">Direct Pay</span>
+              <span className="font-data-metric text-base font-bold text-primary">₹0 Cut</span>
+              <span className="font-label-sm text-[11px] text-secondary">Direct Pay</span>
             </div>
           </div>
         </div>
 
-        {/* Verification & Badges Checklist */}
-        <div className="bg-surface-container-lowest rounded-xl p-space-md shadow-xs border border-surface-container/60 flex flex-col gap-3">
+        {/* Editable Profile & Tariff Settings */}
+        {isEditing ? (
+          <div className="bg-surface-container-lowest rounded-2xl p-space-md shadow-xs border border-surface-container/60 flex flex-col gap-4 animate-in fade-in">
+            <h2 className="font-headline-sm text-sm font-bold text-on-surface">Edit Profile &amp; Pricing</h2>
+
+            <div>
+              <label className="font-label-sm text-xs font-bold text-on-surface block mb-1">
+                Professional Bio
+              </label>
+              <textarea
+                rows={3}
+                value={editBio}
+                onChange={(e) => setEditBio(e.target.value)}
+                className="w-full p-2.5 rounded-lg bg-surface-container-low border border-surface-container text-xs text-on-surface focus:outline-none focus:border-primary"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="font-label-sm text-xs font-bold text-on-surface block mb-1">
+                  Visit Charge (₹)
+                </label>
+                <input
+                  type="number"
+                  value={editVisitFee}
+                  onChange={(e) => setEditVisitFee(parseInt(e.target.value) || 0)}
+                  className="w-full h-10 px-3 rounded-lg bg-surface-container-low border border-surface-container text-xs font-mono font-bold text-on-surface"
+                />
+              </div>
+
+              <div>
+                <label className="font-label-sm text-xs font-bold text-on-surface block mb-1">
+                  Starting Labor (₹)
+                </label>
+                <input
+                  type="number"
+                  value={editLaborFee}
+                  onChange={(e) => setEditLaborFee(parseInt(e.target.value) || 0)}
+                  className="w-full h-10 px-3 rounded-lg bg-surface-container-low border border-surface-container text-xs font-mono font-bold text-on-surface"
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="font-label-sm text-xs font-bold text-on-surface">
+                  Service Radius ({editRadius} km)
+                </label>
+              </div>
+              <input
+                type="range"
+                min={2}
+                max={15}
+                value={editRadius}
+                onChange={(e) => setEditRadius(parseInt(e.target.value) || 2)}
+                className="w-full accent-primary cursor-pointer"
+              />
+            </div>
+
+            <button
+              onClick={handleSaveProfile}
+              className="w-full py-3 rounded-xl bg-primary text-on-primary font-bold text-xs shadow-xs cursor-pointer hover:bg-primary-container transition-all"
+            >
+              Save Profile Changes
+            </button>
+          </div>
+        ) : (
+          /* Profile Details View */
+          <div className="bg-surface-container-lowest rounded-2xl p-space-md shadow-xs border border-surface-container/60 flex flex-col gap-3">
+            <h2 className="font-headline-sm text-sm font-bold text-on-surface">About Professional</h2>
+            <p className="font-body-sm text-xs text-on-surface-variant leading-relaxed">
+              "{providerProfile.description || providerProfile.bio || 'Verified Professional'}"
+            </p>
+
+            <div className="pt-2 border-t border-surface-container flex flex-wrap gap-1.5">
+              {(providerProfile.selectedSkills || providerProfile.skills || []).map((sk) => (
+                <span key={sk} className="px-2.5 py-1 rounded-lg text-xs bg-surface-container font-medium text-on-surface">
+                  {sk}
+                </span>
+              ))}
+            </div>
+
+            <div className="pt-2 border-t border-surface-container grid grid-cols-2 gap-2 text-xs">
+              <div className="p-2.5 rounded-lg bg-surface-container-low">
+                <span className="text-secondary text-[11px] block">Doorstep Inspection</span>
+                <span className="font-mono font-bold text-on-surface text-sm">
+                  ₹{providerProfile.pricing?.visitInspectionFee ?? providerProfile.visitFee ?? 99}
+                </span>
+              </div>
+              <div className="p-2.5 rounded-lg bg-surface-container-low">
+                <span className="text-secondary text-[11px] block">Starting Labor Tariff</span>
+                <span className="font-mono font-bold text-on-surface text-sm">
+                  ₹{providerProfile.pricing?.startingLaborRate ?? 220}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Verification & Screening Checklist */}
+        <div className="bg-surface-container-lowest rounded-2xl p-space-md shadow-xs border border-surface-container/60 flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold">
+            <h2 className="font-headline-sm text-sm font-bold text-on-surface">
               Screening Checklist &amp; Licensing (Demo)
             </h2>
             <span className="font-label-sm text-[11px] bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded font-semibold">
               Simulated Checks
             </span>
           </div>
+
           <div className="space-y-2.5">
-            {[
-              {
-                title: 'ITI Electrical Diploma (Demo Record)',
-                sub: `Certificate #ITI-8812 (Sample portfolio check for prototype demo)`,
-                icon: 'school',
-              },
-              {
-                title: `${cityConfig.localUtilityProvider.name} Wireman License (Demo Check)`,
-                sub: `Simulated credential check for domestic distribution boards`,
-                icon: 'electric_bolt',
-              },
-              {
-                title: '₹10,000 Demo Transit & Accidental Protection',
-                sub: `Policy #${cityConfig.tradeCompliance.insuranceUnderwriter} (Prototype risk pool demo)`,
-                icon: 'verified_user',
-              },
-              {
-                title: 'Vehicle: Honda Activa 6G',
-                sub: `Simulated route telemetry (Test transit simulator)`,
-                icon: 'two_wheeler',
-              },
-            ].map((b, idx) => (
-              <div key={idx} className="flex items-start gap-3 p-2.5 rounded-lg bg-surface-container-low border border-surface-container">
-                <span className="material-symbols-outlined text-[20px] text-primary shrink-0 mt-0.5">
-                  {b.icon}
+            {(providerProfile.documents || []).map((doc, idx) => (
+              <div key={idx} className="flex items-start gap-3 p-2.5 rounded-xl bg-surface-container-low border border-surface-container">
+                <span className="material-symbols-outlined text-[20px] text-emerald-700 shrink-0 mt-0.5">
+                  verified
                 </span>
-                <div className="flex flex-col min-w-0">
-                  <span className="font-label-md text-label-md font-bold text-on-surface">
-                    {b.title}
+                <div className="min-w-0 flex-1">
+                  <span className="font-label-md text-xs font-bold text-on-surface block">
+                    {doc.type}
                   </span>
-                  <span className="font-body-sm text-[11px] text-on-surface-variant leading-tight">
-                    {b.sub}
+                  <span className="font-body-sm text-[11px] text-secondary">
+                    Status: {doc.status} · Submitted on {doc.submittedAt}
                   </span>
                 </div>
+                <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded">
+                  PASS
+                </span>
               </div>
             ))}
+
+            <div className="flex items-start gap-3 p-2.5 rounded-xl bg-surface-container-low border border-surface-container">
+              <span className="material-symbols-outlined text-[20px] text-primary shrink-0 mt-0.5">
+                electric_bolt
+              </span>
+              <div className="min-w-0 flex-1">
+                <span className="font-label-md text-xs font-bold text-on-surface block">
+                  {cityConfig.localUtilityProvider.name} Wireman Safety Standard
+                </span>
+                <span className="font-body-sm text-[11px] text-secondary">
+                  Compliant with domestic distribution boards &amp; earth leakage testing
+                </span>
+              </div>
+              <span className="text-[10px] text-primary font-bold bg-primary/10 px-2 py-0.5 rounded">
+                STANDARD
+              </span>
+            </div>
+
+            <div className="flex items-start gap-3 p-2.5 rounded-xl bg-surface-container-low border border-surface-container">
+              <span className="material-symbols-outlined text-[20px] text-tertiary shrink-0 mt-0.5">
+                two_wheeler
+              </span>
+              <div className="min-w-0 flex-1">
+                <span className="font-label-md text-xs font-bold text-on-surface block">
+                  Transit Vehicle: {providerProfile.vehicle?.model || 'Honda Activa 6G'}
+                </span>
+                <span className="font-body-sm text-[11px] text-secondary">
+                  Fast response vehicle for {providerProfile.primaryLocality || providerProfile.serviceArea} corridor
+                </span>
+              </div>
+              <span className="text-[10px] text-tertiary font-bold bg-tertiary/10 px-2 py-0.5 rounded">
+                ACTIVE
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Quick Mode & Demo Controls */}
-        <div className="bg-surface-container-lowest rounded-xl p-space-md shadow-xs border border-surface-container/60 flex flex-col gap-3">
-          <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-            App Mode &amp; Demo Actions
-          </h2>
-          <div className="flex flex-col gap-2">
+        {/* Demo Controls & Role Actions */}
+        <div className="p-4 rounded-2xl bg-surface-container-low border border-surface-container flex flex-col gap-2.5">
+          <span className="font-label-sm text-xs uppercase tracking-wider text-secondary font-bold">
+            Demo Environment Controls
+          </span>
+
+          <div className="flex flex-col sm:flex-row gap-2">
             <button
               onClick={() => setRole('customer')}
-              className="w-full py-3 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-bold flex items-center justify-center gap-2 shadow-xs active:scale-[0.98] transition-all cursor-pointer"
+              className="flex-1 py-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container text-on-surface text-xs font-bold border border-surface-container flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
             >
-              <span className="material-symbols-outlined text-[18px]">person</span>
-              <span>Switch to Customer App View</span>
+              <span className="material-symbols-outlined text-[16px] text-primary">person</span>
+              <span>Switch to Resident View (Priya)</span>
             </button>
             <button
-              onClick={() => {
-                resetDemoState();
-              }}
-              className="w-full py-3 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold hover:bg-surface-container-highest transition-colors cursor-pointer"
+              onClick={resetDemoState}
+              className="flex-1 py-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container text-on-surface text-xs font-bold border border-surface-container flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
             >
-              Reset Demo State
+              <span className="material-symbols-outlined text-[16px] text-secondary">restart_alt</span>
+              <span>Reset Entire Demo State</span>
             </button>
           </div>
         </div>

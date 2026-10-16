@@ -1,4 +1,13 @@
-import { ServiceCategory, Provider, SparePartItem, CompletedDispatchSummary, ServiceRequest, LocationCluster } from '../types';
+import {
+  ServiceCategory,
+  Provider,
+  SparePartItem,
+  CompletedDispatchSummary,
+  ServiceRequest,
+  LocationCluster,
+  ProviderProfile,
+  JobOpportunity,
+} from '../types';
 
 export const SATTHI_LOGO_URL =
   'https://lh3.googleusercontent.com/aida/AEtjO1XzOKVg9FfPh380jD-Y4_ccpCYyOPZ9PbKbAEoi_T10C0kn_7RLoEZlkg-wi8ZsZvZzZZgHfeXQ6hJk8cUTKvsfldUzy0kmj9T3SXbnMEu6-vbdIrWoo02WP9wfMlMErNLi0CcIMxR2C1mgL5iVKhVRY5RjukPX8ESHG5hqvUkgWWLBzC2NK6BWaB_tpDkT60iHO-3OBOFmxfX694pYdPJWVLburJWkpYChKHC4xiTyfiNF1vJJPEQ4jcw';
@@ -482,6 +491,7 @@ export const MOCK_PROVIDERS: Provider[] = [
 ];
 
 export const AUTHORIZED_SPARE_PARTS: SparePartItem[] = [
+  // Electrical
   {
     id: 'part-mcb-32a',
     name: 'Schneider Electric 32A C-Curve MCB',
@@ -514,6 +524,190 @@ export const AUTHORIZED_SPARE_PARTS: SparePartItem[] = [
     verifiedMSRP: true,
     inStock: true,
   },
+  // Plumbing
+  {
+    id: 'part-pipe-valve-1',
+    name: 'Astral CPVC 1" Heavy Ball Valve',
+    price: 260,
+    brand: 'Astral',
+    verifiedMSRP: true,
+    inStock: true,
+  },
+  {
+    id: 'part-flush-siphon',
+    name: 'Kohler Dual-Flush Siphon Assembly Kit',
+    price: 380,
+    brand: 'Kohler',
+    verifiedMSRP: true,
+    inStock: true,
+  },
+  {
+    id: 'part-tap-cartridge',
+    name: 'Jaquar Ceramic Disc Spindle Cartridge (Half-Inch)',
+    price: 190,
+    brand: 'Jaquar',
+    verifiedMSRP: true,
+    inStock: true,
+  },
+  // Carpentry
+  {
+    id: 'part-lock-godrej',
+    name: 'Godrej Ultra XL 60mm Brass Door Cylinder',
+    price: 450,
+    brand: 'Godrej',
+    verifiedMSRP: true,
+    inStock: true,
+  },
+  {
+    id: 'part-hydraulic-hinge',
+    name: 'Hafele Soft-Close Hydraulic Concealed Hinges (Pair)',
+    price: 280,
+    brand: 'Hafele',
+    verifiedMSRP: true,
+    inStock: true,
+  },
+  // AC & Appliance
+  {
+    id: 'part-ac-capacitor',
+    name: 'EPCOS Dual Run Motor Capacitor 45+5 uF',
+    price: 320,
+    brand: 'EPCOS',
+    verifiedMSRP: true,
+    inStock: true,
+  },
+  {
+    id: 'part-ac-gas-r32',
+    name: 'Floron R32 Eco-Refrigerant Canister (300g)',
+    price: 480,
+    brand: 'Floron',
+    verifiedMSRP: true,
+    inStock: true,
+  },
+];
+
+export const DEFAULT_LOGGED_IN_PROVIDER: ProviderProfile = {
+  id: 'rahul-kumar',
+  userId: 'usr-pro-rahul',
+  name: 'Rahul Kumar',
+  phone: '+91 98450 88210',
+  email: 'rahul.kumar@satthi.pro',
+  profession: 'Senior Licensed Electrician & Diagnostics Specialist',
+  category: 'electrician',
+  services: [
+    'Emergency Short Circuit & MCB Tripping',
+    'Ceiling Fan Wiring & Capacitor Replacement',
+    'Main Distribution Board Rewiring',
+    'Inverter & Battery Bypass Setup',
+    'Geyser & Heavy Appliance Power Sockets',
+  ],
+  experienceYears: 8,
+  skills: [
+    'Fault Diagnostics',
+    'Thermal Circuit Scanning',
+    'ITI Wireman Certified',
+    'Safety Isolation Protocol',
+  ],
+  serviceArea: 'Indiranagar Hub & Surrounding Corridors',
+  serviceRadiusKm: 3.5,
+  availability: 'online',
+  verificationStatus: 'VERIFIED',
+  rating: 4.94,
+  reviewCount: 184,
+  completedJobsCount: 320,
+  visitFee: 99,
+  laborRateRange: '₹150 – ₹350 avg fix',
+  profileImage: PRO_RAHUL_AVATAR,
+  bio: 'Certified Grade-A wireman with 8+ years across domestic & commercial installations. Carrying insulated toolkit, digital multimeter, and authorized manufacturer spare parts.',
+  languages: ['English', 'Hindi', 'Kannada'],
+  cityId: 'bengaluru',
+  clusterId: 'indiranagar',
+  emergencyAvailable: true,
+  vehicle: {
+    model: 'Honda Activa 6G',
+    plate: 'KA-03-EX-9921',
+  },
+};
+
+export const MOCK_JOB_OPPORTUNITIES: JobOpportunity[] = [
+  {
+    id: 'opp-1',
+    serviceType: 'Electrician',
+    category: 'electrician',
+    customerName: 'Priya M.',
+    customerRating: 4.9,
+    customerAddress: '42, 12th Main Rd, Indiranagar',
+    locality: 'Indiranagar Hub',
+    distanceKm: 0.8,
+    requestedTimeAgo: 'Just now',
+    urgency: 'immediate',
+    estimatedEarningsRange: '₹350 – ₹550',
+    baseInspectionFee: 99,
+    issueTitle: 'Short Circuit / MCB Tripping',
+    issueDescription:
+      'Living room power went out with a loud click from the distribution box; switches smell faintly burnt.',
+    requiredSkills: ['MCB Diagnosis', 'Insulation Check', 'Circuit Testing'],
+    photoUrl: BEFORE_FAULT_PHOTO,
+    status: 'AVAILABLE',
+  },
+  {
+    id: 'opp-2',
+    serviceType: 'Electrician',
+    category: 'electrician',
+    customerName: 'Kavita Sundaram',
+    customerRating: 4.85,
+    customerAddress: '78, 100ft Rd, HAL 2nd Stage',
+    locality: 'HAL 2nd Stage',
+    distanceKm: 1.4,
+    requestedTimeAgo: '8 mins ago',
+    urgency: 'immediate',
+    estimatedEarningsRange: '₹220 – ₹350',
+    baseInspectionFee: 99,
+    issueTitle: 'Ceiling Fan Humming & Not Spinning',
+    issueDescription:
+      'Master bedroom fan makes loud buzzing sound on switch toggle, regulator seems unresponsive.',
+    requiredSkills: ['Fan Capacitor Check', 'Regulator Wiring'],
+    status: 'AVAILABLE',
+  },
+  {
+    id: 'opp-3',
+    serviceType: 'Plumber',
+    category: 'plumber',
+    customerName: 'Arvind Hegde',
+    customerRating: 5.0,
+    customerAddress: '15, Defence Colony, 4th Cross',
+    locality: 'Indiranagar Hub',
+    distanceKm: 1.1,
+    requestedTimeAgo: '15 mins ago',
+    urgency: 'later',
+    preferredTimeSlot: 'Today · 3:00 PM – 5:00 PM',
+    estimatedEarningsRange: '₹280 – ₹450',
+    baseInspectionFee: 99,
+    issueTitle: 'Kitchen Under-Sink Pipe Dripping',
+    issueDescription:
+      'Slow water accumulation under the kitchen counter sink trap during drain discharge.',
+    requiredSkills: ['CPVC Pipe Fitting', 'Drainage Trap Clearance'],
+    status: 'AVAILABLE',
+  },
+  {
+    id: 'opp-4',
+    serviceType: 'Appliance & AC',
+    category: 'appliance-ac',
+    customerName: 'Naveen Reddy',
+    customerRating: 4.75,
+    customerAddress: '55, 6th Main, Koramangala 4th Block',
+    locality: 'Koramangala 4th Block',
+    distanceKm: 2.2,
+    requestedTimeAgo: '22 mins ago',
+    urgency: 'later',
+    preferredTimeSlot: 'Today · 4:00 PM – 6:00 PM',
+    estimatedEarningsRange: '₹450 – ₹850',
+    baseInspectionFee: 199,
+    issueTitle: 'Split AC Blowing Warm Air',
+    issueDescription:
+      '1.5 ton split AC outdoor unit starts but compressor cuts off after 2 minutes; cooling has dropped.',
+    requiredSkills: ['Refrigerant Gas Check', 'Run Capacitor Test'],
+    status: 'AVAILABLE',
+  },
 ];
 
 export const INITIAL_ACTIVE_REQUEST: ServiceRequest = {
@@ -533,6 +727,9 @@ export const INITIAL_ACTIVE_REQUEST: ServiceRequest = {
   status: 'ON_THE_WAY',
   assignedProviderId: 'rahul-kumar',
   pin: '4821',
+  arrivalPin: '4821',
+  completionPin: '7130',
+  paymentMethod: 'cash',
   visitFee: 99,
   laborFee: 220,
   parts: [
@@ -548,7 +745,7 @@ export const INITIAL_ACTIVE_REQUEST: ServiceRequest = {
   platformFee: 15,
   discount: 15,
   taxes: 3,
-  totalPayable: 448,
+  totalPayable: 433,
   paymentStatus: 'pending',
   createdAt: '10:14 AM Today',
   etaMinutesRemaining: 9,

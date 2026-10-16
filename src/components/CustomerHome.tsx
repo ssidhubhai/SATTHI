@@ -11,6 +11,8 @@ export const CustomerHome: React.FC = () => {
     currentLocation,
     showToast,
     cityConfig,
+    activeRequest,
+    setRole,
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,31 +59,48 @@ export const CustomerHome: React.FC = () => {
 
   return (
     <div className="flex flex-col w-full max-w-2xl mx-auto pb-28">
-      {/* Top Greeting & Locality Context */}
-      <section className="px-margin pt-4 pb-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="font-label-sm text-label-sm text-primary uppercase tracking-wider font-bold">
-              {currentLocation.name}
-            </span>
-            <h1 className="font-headline-md text-headline-md text-on-surface tracking-tight mt-0.5 font-extrabold">
-              Good evening, Priya
-            </h1>
+      {/* Active Dispatch Resumption Banner (if order exists) */}
+      {activeRequest && activeRequest.status !== 'COMPLETED' && activeRequest.status !== 'CANCELLED' && (
+        <section className="px-margin pt-1 pb-2">
+          <div className="p-3.5 rounded-2xl bg-primary text-on-primary shadow-sm flex items-center justify-between gap-3 animate-in fade-in">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="relative flex h-2.5 w-2.5 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+              </span>
+              <div className="truncate">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-label-sm text-[10px] uppercase tracking-wider font-extrabold text-primary-fixed">
+                    ORDER #{activeRequest.id} ACTIVE
+                  </span>
+                  <span className="text-[10px] bg-white/20 px-1.5 py-0.2 rounded font-bold">
+                    {activeRequest.status}
+                  </span>
+                </div>
+                <span className="font-label-md text-xs font-bold text-white block truncate">
+                  {activeRequest.assignedProviderName || 'Rahul Kumar'} · {activeRequest.faultType || activeRequest.categoryTitle || 'Emergency Dispatch'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={() => {
+                  if (activeRequest.status === 'SEARCHING') {
+                    navigateTo('matching-radar');
+                  } else {
+                    navigateTo('live-tracking');
+                  }
+                }}
+                className="px-3 py-1.5 rounded-xl bg-white text-primary text-xs font-bold shadow-xs cursor-pointer hover:bg-white/90 transition-all flex items-center gap-1"
+              >
+                <span>Track Live</span>
+                <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-surface-container rounded-full">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
-            </span>
-            <span className="font-label-sm text-label-sm text-on-surface-variant font-medium">
-              {currentLocation.activeProsCount} Pros Live
-            </span>
-          </div>
-        </div>
-        <p className="font-body-md text-body-md text-on-surface-variant mt-1">
-          Local on-demand services: Who can help you right now? Verified independent pros at locked rates.
-        </p>
-      </section>
+        </section>
+      )}
 
       {/* High-Craft Search & Quick Pills */}
       <section className="px-margin pt-2 pb-4">
@@ -491,55 +510,45 @@ export const CustomerHome: React.FC = () => {
         </div>
       </section>
 
-      {/* Transparent Service Promise & Trust Strip */}
-      <section className="px-margin pb-4">
-        <div className="bg-surface-container-low rounded-2xl p-4 border border-surface-container/60">
-          <h3 className="font-label-sm text-xs uppercase tracking-wider font-extrabold text-secondary mb-3">
-            The SATTHI Trust Standard
-          </h3>
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-surface-container-lowest flex items-center justify-center shrink-0 text-primary shadow-2xs">
-                <span className="material-symbols-outlined text-[18px]">receipt_long</span>
-              </div>
-              <div>
-                <h4 className="font-headline-sm text-on-surface font-bold text-sm leading-tight">
-                  Zero Hidden Markups
-                </h4>
-                <p className="font-body-sm text-xs text-on-surface-variant mt-0.5 leading-relaxed">
-                  Visit fee is locked upfront. Spare parts are billed at market MSRP with distributor
-                  retail receipt.
-                </p>
-              </div>
+      {/* Work With SATTHI Partner Portal Entry Point */}
+      <section className="px-margin pb-6">
+        <div className="p-4 rounded-2xl bg-primary text-on-primary shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[24px] text-white">engineering</span>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-surface-container-lowest flex items-center justify-center shrink-0 text-primary shadow-2xs">
-                <span className="material-symbols-outlined text-[18px]">handshake</span>
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="font-headline-sm text-sm font-bold text-white">Are you a technician or craftsman?</h4>
+                <span className="text-[10px] bg-white/20 text-white px-1.5 py-0.2 rounded font-bold uppercase">
+                  PARTNER
+                </span>
               </div>
-              <div>
-                <h4 className="font-headline-sm text-on-surface font-bold text-sm leading-tight">
-                  Direct to Local Pros
-                </h4>
-                <p className="font-body-sm text-xs text-on-surface-variant mt-0.5 leading-relaxed">
-                  Technicians keep 100% of labour earnings. No middlemen commissions, ensuring fair
-                  service and dignified work.
-                </p>
-              </div>
+              <p className="font-body-sm text-xs text-white/80 mt-0.5 leading-snug">
+                Earn directly with ₹0 commission in {cityConfig.name}. Choose your own hours.
+              </p>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-surface-container-lowest flex items-center justify-center shrink-0 text-primary shadow-2xs">
-                <span className="material-symbols-outlined text-[18px]">verified_user</span>
-              </div>
-              <div>
-                <h4 className="font-headline-sm text-on-surface font-bold text-sm leading-tight">
-                  SATTHI Work Guarantee
-                </h4>
-                <p className="font-body-sm text-xs text-on-surface-variant mt-0.5 leading-relaxed">
-                  Every verified dispatch is backed by up to ₹10,000 property protection and a{' '}
-                  {cityConfig.pricing.warrantyDays}-day warranty callback.
-                </p>
-              </div>
-            </div>
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => {
+                setRole('provider');
+                navigateTo('provider-landing');
+              }}
+              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-white text-primary text-xs font-bold shadow-xs cursor-pointer hover:bg-white/90 transition-all text-center"
+            >
+              Join as Pro
+            </button>
+            <button
+              onClick={() => {
+                setRole('provider');
+                navigateTo('provider-login');
+              }}
+              className="flex-1 sm:flex-initial px-3.5 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold cursor-pointer transition-colors text-center"
+            >
+              Pro Login
+            </button>
           </div>
         </div>
       </section>

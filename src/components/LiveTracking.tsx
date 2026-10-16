@@ -10,6 +10,7 @@ export const LiveTracking: React.FC = () => {
     setRole,
     markProviderArrived,
     verifyDoorstepPin,
+    verifyCompletionAndCash,
     completeServiceJob,
     showToast,
     currentLocation,
@@ -223,12 +224,12 @@ export const LiveTracking: React.FC = () => {
             </button>
             <button
               onClick={() => {
-                completeServiceJob();
+                verifyCompletionAndCash(activeRequest?.completionPin || '7130', activeRequest?.totalPayable);
                 navigateTo('service-invoice');
               }}
-              className="py-2 px-1.5 rounded-lg text-xs font-bold bg-primary text-on-primary shadow-xs hover:bg-primary-container transition-all cursor-pointer truncate"
+              className="py-2 px-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-xs hover:bg-emerald-700 transition-all cursor-pointer truncate"
             >
-              3. Complete
+              3. Cash &amp; PIN
             </button>
           </div>
         </div>
@@ -253,24 +254,59 @@ export const LiveTracking: React.FC = () => {
           </div>
 
           {isInProgress ? (
-            <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                  <span className="material-symbols-outlined text-[20px]">handshake</span>
+            <div className="flex flex-col gap-2.5">
+              <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <span className="material-symbols-outlined text-[20px]">handshake</span>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-label-md text-sm font-bold text-emerald-950">
+                        Arrival PIN Handshake Verified
+                      </span>
+                      <span className="px-1.5 py-0.2 rounded bg-emerald-200 text-emerald-900 text-[10px] font-bold">
+                        Active
+                      </span>
+                    </div>
+                    <p className="font-body-sm text-xs text-emerald-800 mt-0.5">
+                      Tool unlock confirmed. {proFirstName} is currently repairing the utility fault.
+                    </p>
+                  </div>
                 </div>
-                <div>
+              </div>
+
+              {/* Completion & Cash Handshake Card for Resident */}
+              <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200/80 flex items-center justify-between">
+                <div className="flex flex-col">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-label-md text-sm font-bold text-emerald-950">
-                      Doorstep PIN Handshake Verified
+                    <span className="font-label-sm text-[11px] uppercase tracking-wider text-amber-900 font-bold">
+                      Doorstep Cash Completion Code
                     </span>
-                    <span className="px-1.5 py-0.2 rounded bg-emerald-200 text-emerald-900 text-[10px] font-bold">
-                      Active
+                    <span className="px-1.5 py-0.2 rounded bg-amber-200 text-amber-900 text-[10px] font-bold">
+                      ₹{activeRequest?.totalPayable || 433}
                     </span>
                   </div>
-                  <p className="font-body-sm text-xs text-emerald-800 mt-0.5">
-                    Tool unlock confirmed. Rahul is currently repairing the distribution box.
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="font-headline-lg-mobile text-2xl font-extrabold tracking-widest text-amber-950 font-mono">
+                      {activeRequest?.completionPin || '7130'}
+                    </span>
+                  </div>
+                  <p className="font-body-sm text-[11px] text-amber-800 mt-0.5">
+                    Pay ₹{activeRequest?.totalPayable || 433} cash to technician &amp; share this code to release official receipt.
                   </p>
                 </div>
+
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(activeRequest?.completionPin || '7130');
+                    showToast('Completion code copied! Share after handing over cash.', 'success', 'content_copy');
+                  }}
+                  className="px-3 py-2 rounded-lg bg-amber-200/80 text-amber-950 hover:bg-amber-200 font-label-sm text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0"
+                >
+                  <span className="material-symbols-outlined text-[15px]">content_copy</span>
+                  <span>Copy</span>
+                </button>
               </div>
             </div>
           ) : isCompleted ? (

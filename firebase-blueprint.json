@@ -1,0 +1,80 @@
+{
+  "entities": {
+    "dispatch": {
+      "title": "Dispatch Request",
+      "description": "On-demand emergency service request and dispatch ticket between customer and provider",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "customerId": { "type": "string", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 100 },
+        "customerPhone": { "type": "string", "maxLength": 20 },
+        "address": { "type": "string", "maxLength": 300 },
+        "cityId": { "type": "string", "enum": ["bengaluru", "mumbai", "delhi"], "maxLength": 30 },
+        "clusterId": { "type": "string", "maxLength": 50 },
+        "category": { "type": "string", "enum": ["electrical", "plumbing", "carpentry", "appliances"], "maxLength": 30 },
+        "faultTitle": { "type": "string", "maxLength": 150 },
+        "faultDescription": { "type": "string", "maxLength": 1000 },
+        "status": { "type": "string", "enum": ["DISPATCHED", "ACCEPTED", "IN_PROGRESS", "COMPLETED", "CANCELLED"], "maxLength": 30 },
+        "providerId": { "type": "string", "maxLength": 128 },
+        "providerName": { "type": "string", "maxLength": 100 },
+        "providerPhone": { "type": "string", "maxLength": 20 },
+        "arrivalPin": { "type": "string", "pattern": "^[0-9]{4}$", "maxLength": 4 },
+        "completionPin": { "type": "string", "pattern": "^[0-9]{4}$", "maxLength": 4 },
+        "baseFee": { "type": "number" },
+        "laborFee": { "type": "number" },
+        "partsFee": { "type": "number" },
+        "taxAmount": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "paymentMode": { "type": "string", "enum": ["CASH", "UPI"], "maxLength": 10 },
+        "paymentStatus": { "type": "string", "enum": ["PENDING", "COLLECTED"], "maxLength": 20 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "customerId", "customerName", "address", "cityId", "category", "faultTitle", "status", "arrivalPin", "completionPin", "totalAmount"]
+    },
+    "provider": {
+      "title": "Service Provider",
+      "description": "Technician profile, category specialization, and live duty status",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "category": { "type": "string", "maxLength": 30 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "rating": { "type": "number" },
+        "totalJobs": { "type": "number" },
+        "isOnline": { "type": "boolean" },
+        "currentCluster": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "name", "category", "isOnline"]
+    },
+    "user": {
+      "title": "Customer User",
+      "description": "Customer resident profile, city preferences, and contact details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "cityId": { "type": "string", "maxLength": 30 },
+        "defaultAddress": { "type": "string", "maxLength": 300 }
+      },
+      "required": ["id", "name", "cityId"]
+    }
+  },
+  "firestore": {
+    "/dispatches/{dispatchId}": {
+      "schema": "dispatch",
+      "description": "Active and past emergency dispatches synced across customer and provider"
+    },
+    "/providers/{providerId}": {
+      "schema": "provider",
+      "description": "Technician profiles and availability"
+    },
+    "/users/{userId}": {
+      "schema": "user",
+      "description": "Customer profile and locality settings"
+    }
+  }
+}

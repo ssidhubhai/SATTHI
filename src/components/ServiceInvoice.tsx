@@ -17,7 +17,8 @@ export const ServiceInvoice: React.FC = () => {
   const [showPdfModal, setShowPdfModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const basePayable = activeRequest?.totalPayable || 448;
+  const basePayable = activeRequest?.totalPayable ?? 433;
+  const isPaid = activeRequest?.paymentStatus === 'paid' || activeRequest?.cashCollected;
   const tipNumber = selectedTip === 'custom' ? parseInt(customTipAmount) || 0 : selectedTip;
   const grandTotal = basePayable + tipNumber;
 
@@ -183,13 +184,13 @@ export const ServiceInvoice: React.FC = () => {
             <div className="p-3 bg-surface-container-lowest flex items-center justify-between text-xs">
               <div>
                 <span className="font-bold text-on-surface block">
-                  MCB Rewiring &amp; Gang Box Labor
+                  {activeRequest?.categoryTitle || 'Service'} Diagnostic &amp; Repair Labor
                 </span>
                 <span className="text-secondary text-[11px]">
                   Fixed tariff standard rate
                 </span>
               </div>
-              <span className="font-bold text-on-surface font-mono">{cityConfig.currencySymbol}220.00</span>
+              <span className="font-bold text-on-surface font-mono">{cityConfig.currencySymbol}{activeRequest?.laborFee || 220}.00</span>
             </div>
 
             {activeRequest?.parts.map((p) => (
@@ -363,81 +364,122 @@ export const ServiceInvoice: React.FC = () => {
           )}
         </div>
 
-        {/* Payment Method Selector */}
-        <div className="pt-2 border-t border-surface-container flex flex-col gap-2">
-          <span className="font-label-md text-label-md font-bold text-on-surface">
-            Select Payment Mode
-          </span>
+        {/* Payment / Verification Section */}
+        {isPaid ? (
+          <div className="pt-2 border-t border-surface-container flex flex-col gap-3">
+            <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200/80 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <span className="material-symbols-outlined text-[20px]">payments</span>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-label-md text-sm font-bold text-emerald-950">
+                    Doorstep Cash Payment Verified
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded bg-emerald-200 text-emerald-900 text-[10px] font-bold">
+                    Settled
+                  </span>
+                </div>
+                <p className="font-body-sm text-xs text-emerald-800 mt-0.5">
+                  ₹{grandTotal} collected in cash by technician via 4-digit Completion PIN handshake.
+                </p>
+              </div>
+            </div>
 
-          <div className="grid grid-cols-3 gap-2">
             <button
-              type="button"
-              onClick={() => setPaymentMethod('upi')}
-              className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
-                paymentMethod === 'upi'
-                  ? 'bg-primary-fixed/20 border-primary ring-1 ring-primary font-bold'
-                  : 'bg-surface-container-low border-surface-container'
-              }`}
+              onClick={() => {
+                submitInvoicePayment({
+                  rating,
+                  tip: tipNumber,
+                  method: 'cash',
+                  feedbackTags: selectedTags,
+                });
+              }}
+              className="w-full h-12 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98] cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[20px] text-primary block mx-auto">
-                qr_code_2
-              </span>
-              <span className="text-xs text-on-surface">Instant UPI</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setPaymentMethod('cash')}
-              className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
-                paymentMethod === 'cash'
-                  ? 'bg-primary-fixed/20 border-primary ring-1 ring-primary font-bold'
-                  : 'bg-surface-container-low border-surface-container'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[20px] text-secondary block mx-auto">
-                payments
-              </span>
-              <span className="text-xs text-on-surface">Pay Cash</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setPaymentMethod('card')}
-              className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
-                paymentMethod === 'card'
-                  ? 'bg-primary-fixed/20 border-primary ring-1 ring-primary font-bold'
-                  : 'bg-surface-container-low border-surface-container'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[20px] text-secondary block mx-auto">
-                credit_card
-              </span>
-              <span className="text-xs text-on-surface">Card</span>
+              <span className="material-symbols-outlined text-[20px]">star</span>
+              <span>Submit Rating &amp; Close Ticket</span>
             </button>
           </div>
-        </div>
-
-        {/* Primary Pay Button */}
-        <button
-          onClick={handlePay}
-          disabled={isProcessing}
-          className="w-full h-12 bg-primary hover:bg-primary-container text-on-primary rounded-xl font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98] cursor-pointer"
-        >
-          {isProcessing ? (
-            <>
-              <span className="material-symbols-outlined text-[20px] animate-spin">
-                progress_activity
+        ) : (
+          <>
+            {/* Payment Method Selector */}
+            <div className="pt-2 border-t border-surface-container flex flex-col gap-2">
+              <span className="font-label-md text-label-md font-bold text-on-surface">
+                Select Payment Mode
               </span>
-              <span>Simulating Authorization...</span>
-            </>
-          ) : (
-            <>
-              <span className="material-symbols-outlined text-[20px]">flash_on</span>
-              <span>Pay {cityConfig.currencySymbol}{grandTotal} (Simulated)</span>
-            </>
-          )}
-        </button>
-        <p className="text-[11px] text-center text-on-surface-variant font-medium mt-1">
-          [Demo Sandbox] Test mode simulation — no actual funds are debited.
-        </p>
+
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('upi')}
+                  className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                    paymentMethod === 'upi'
+                      ? 'bg-primary-fixed/20 border-primary ring-1 ring-primary font-bold'
+                      : 'bg-surface-container-low border-surface-container'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[20px] text-primary block mx-auto">
+                    qr_code_2
+                  </span>
+                  <span className="text-xs text-on-surface">Instant UPI</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('cash')}
+                  className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                    paymentMethod === 'cash'
+                      ? 'bg-primary-fixed/20 border-primary ring-1 ring-primary font-bold'
+                      : 'bg-surface-container-low border-surface-container'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[20px] text-secondary block mx-auto">
+                    payments
+                  </span>
+                  <span className="text-xs text-on-surface">Pay Cash</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('card')}
+                  className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                    paymentMethod === 'card'
+                      ? 'bg-primary-fixed/20 border-primary ring-1 ring-primary font-bold'
+                      : 'bg-surface-container-low border-surface-container'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[20px] text-secondary block mx-auto">
+                    credit_card
+                  </span>
+                  <span className="text-xs text-on-surface">Card</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Primary Pay Button */}
+            <button
+              onClick={handlePay}
+              disabled={isProcessing}
+              className="w-full h-12 bg-primary hover:bg-primary-container text-on-primary rounded-xl font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98] cursor-pointer"
+            >
+              {isProcessing ? (
+                <>
+                  <span className="material-symbols-outlined text-[20px] animate-spin">
+                    progress_activity
+                  </span>
+                  <span>Simulating Authorization...</span>
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-[20px]">flash_on</span>
+                  <span>Pay {cityConfig.currencySymbol}{grandTotal} (Simulated)</span>
+                </>
+              )}
+            </button>
+            <p className="text-[11px] text-center text-on-surface-variant font-medium mt-1">
+              [Demo Sandbox] Test mode simulation — no actual funds are debited.
+            </p>
+          </>
+        )}
       </div>
 
       {/* Official PDF Invoicing Action */}

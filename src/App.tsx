@@ -13,6 +13,9 @@ import { LiveTracking } from './components/LiveTracking';
 import { ServiceInvoice } from './components/ServiceInvoice';
 import { ActivityHistory } from './components/ActivityHistory';
 import { HelpSupportModal } from './components/HelpSupportModal';
+import { ProviderLanding } from './components/ProviderLanding';
+import { ProviderRegister } from './components/ProviderRegister';
+import { ProviderLogin } from './components/ProviderLogin';
 import { ProviderDashboard } from './components/ProviderDashboard';
 import { ProviderJobsBroadcast } from './components/ProviderJobsBroadcast';
 import { ProviderActiveJob } from './components/ProviderActiveJob';
@@ -20,9 +23,35 @@ import { ProviderEarningsView } from './components/ProviderEarningsView';
 import { ProviderProfileView } from './components/ProviderProfileView';
 
 const MainContent: React.FC = () => {
-  const { currentScreen, role, navigateTo } = useApp();
+  const { currentScreen, role, navigateTo, setRole } = useApp();
 
   const getHeaderProps = () => {
+    // Provider Portal Independent Landing, Register & Login Screens
+    if (currentScreen === 'provider-landing') {
+      return {
+        title: 'Work with SATTHI · Partner Portal',
+        showBack: true,
+        onBack: () => {
+          setRole('customer');
+          navigateTo('home');
+        },
+      };
+    }
+    if (currentScreen === 'provider-register') {
+      return {
+        title: 'Partner Onboarding Registration',
+        showBack: true,
+        onBack: () => navigateTo('provider-landing'),
+      };
+    }
+    if (currentScreen === 'provider-login') {
+      return {
+        title: 'Partner Portal Login',
+        showBack: true,
+        onBack: () => navigateTo('provider-landing'),
+      };
+    }
+
     if (role === 'provider') {
       switch (currentScreen) {
         case 'provider-dashboard':
@@ -108,8 +137,13 @@ const MainContent: React.FC = () => {
       <Header {...headerProps} />
 
       <main className="flex-1 w-full pt-16 bg-surface min-h-screen overflow-x-hidden">
+        {/* Provider Experience Onboarding / Portal Screens (Accessible from both customer & provider mode) */}
+        {currentScreen === 'provider-landing' && <ProviderLanding />}
+        {currentScreen === 'provider-register' && <ProviderRegister />}
+        {currentScreen === 'provider-login' && <ProviderLogin />}
+
         {/* Customer Screen Routing */}
-        {role === 'customer' && (
+        {role === 'customer' && currentScreen !== 'provider-landing' && currentScreen !== 'provider-register' && currentScreen !== 'provider-login' && (
           <>
             {currentScreen === 'home' && <CustomerHome />}
             {currentScreen === 'category-details' && <CategoryDetails />}
@@ -124,7 +158,7 @@ const MainContent: React.FC = () => {
         )}
 
         {/* Provider Screen Routing */}
-        {role === 'provider' && (
+        {role === 'provider' && currentScreen !== 'provider-landing' && currentScreen !== 'provider-register' && currentScreen !== 'provider-login' && (
           <>
             {currentScreen === 'provider-dashboard' && <ProviderDashboard />}
             {currentScreen === 'provider-jobs' && <ProviderJobsBroadcast />}

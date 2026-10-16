@@ -4,6 +4,24 @@ All notable changes to the **SATTHI (साथी)** codebase are documented in 
 
 ---
 
+## [Phase 5: Real-Time Firebase Backend & Doorstep Cash Handshake] - 2026-10-10
+
+### Added
+* **Cloud Database & Live Reactive Dispatch Sync**:
+  * Integrated Firebase Firestore SDK with dedicated project database (`ai-studio-satthilocalondem-b95be95c-d62c-4e6d-ac00-42886d6273cf`).
+  * Implemented real-time bidirectional `onSnapshot` listeners on `/dispatches/{id}`, allowing customer order creation, technician radar acceptance, navigation updates, and job closure to synchronize across separate tabs and devices in real time.
+  * Intermediate schema blueprint (`firebase-blueprint.json`) defining `dispatch`, `provider`, and `user` models.
+  * Hardened Attribute-Based Access Control (ABAC) rules (`firestore.rules`) with regex ID guards, schema validators (`isValidDispatch`), and terminal state locks for completed and cancelled tickets.
+* **Zero-Trust Cash-on-Doorstep Protocol & Dual Handshake PINs**:
+  * **Arrival Handshake PIN**: 4-digit code generated for customer upon booking, verified by technician upon doorstep arrival to unlock diagnostic tools and work authorization.
+  * **Completion Handshake PIN**: 4-digit code displayed on resident's screen upon reviewing repair work, verified by technician in a dedicated cash collection modal to confirm receipt of physical currency before ticket closure.
+  * Integrated cash collection tally into technician earnings and real-time bank settlement trackers.
+* **Pricing Parity & UI Polish**:
+  * Resolved arithmetic total discrepancies between line items and checkout headers (strict ₹433 base tariff consistency).
+  * Enhanced `CustomerHome.tsx` with resilient active dispatch resumption card.
+
+---
+
 ## [Phase 4: Current Checkpoint] - 2026-10-05
 
 ### Added

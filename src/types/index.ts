@@ -9,9 +9,103 @@ export type RequestStatus =
   | 'ARRIVED'
   | 'IN_PROGRESS'
   | 'COMPLETED'
-  | 'CANCELLED';
+  | 'CANCELLED'
+  | 'DECLINED';
 
 export type ProviderDutyStatus = 'online' | 'busy' | 'offline';
+
+export type VerificationStatus =
+  | 'NOT_SUBMITTED'
+  | 'UNDER_REVIEW'
+  | 'VERIFIED'
+  | 'NEEDS_ACTION';
+
+export interface ProviderProfile {
+  id: string;
+  userId: string;
+  name: string;
+  fullName?: string;
+  phone: string;
+  email?: string;
+  profession: string;
+  category: string;
+  tradeCategory?: string;
+  services: string[];
+  experienceYears: number;
+  yearsExperience?: number;
+  skills: string[];
+  selectedSkills?: string[];
+  serviceArea: string;
+  primaryLocality?: string;
+  primaryLocalityId?: string;
+  serviceRadiusKm: number;
+  availability: ProviderDutyStatus;
+  verificationStatus: VerificationStatus;
+  rating: number;
+  reviewCount: number;
+  completedJobsCount: number;
+  visitFee: number;
+  laborRateRange: string;
+  profileImage: string;
+  avatarUrl?: string;
+  bio: string;
+  description?: string;
+  languages: string[];
+  cityId: string;
+  clusterId: string;
+  emergencyAvailable: boolean;
+  vehicle?: {
+    model: string;
+    plate?: string;
+    type?: string;
+  };
+  pricing?: {
+    visitInspectionFee: number;
+    startingLaborRate: number;
+    emergencyAvailable: boolean;
+  };
+  stats?: {
+    rating: number;
+    reviewCount: number;
+    completedJobs: number;
+    onTimeRate: string;
+    repeatHires: number;
+  };
+  documents?: Array<{
+    type: string;
+    status: string;
+    submittedAt: string;
+  }>;
+}
+
+export interface JobOpportunity {
+  id: string;
+  serviceType: string;
+  serviceCategory?: string;
+  category: string;
+  customerName: string;
+  customerRating: number;
+  customerAddress: string;
+  customerLocality?: string;
+  locality: string;
+  distanceKm: number;
+  requestedTimeAgo: string;
+  requestedAt?: string;
+  urgency: 'immediate' | 'later';
+  preferredTimeSlot?: string;
+  estimatedEarningsRange: string;
+  estimatedEarnings?: number;
+  estimatedTravelMinutes?: number;
+  baseInspectionFee: number;
+  issueTitle: string;
+  title?: string;
+  issueDescription: string;
+  description?: string;
+  requiredSkills: string[];
+  photoUrl?: string;
+  status: 'AVAILABLE' | 'ACCEPTED' | 'DECLINED' | 'EXPIRED';
+  originalRequestId?: string;
+}
 
 export interface ServiceCategory {
   id: string;
@@ -93,15 +187,24 @@ export interface ServiceRequest {
   customerAddress: string;
   landmark: string;
   category: string;
+  categoryTitle?: string;
   faultType: string;
   description: string;
+  faultDescription?: string;
   photoUrl?: string;
   urgency: 'immediate' | 'later';
   preferredTimeSlot?: string;
   status: RequestStatus;
   assignedProviderId?: string;
-  pin: string; // e.g., '4821'
+  assignedProviderName?: string;
+  assignedProviderPhone?: string;
+  pin: string; // Arrival PIN (backward compatible)
+  arrivalPin?: string;
+  completionPin?: string;
+  cashCollected?: boolean;
+  cashAmountReceived?: number;
   visitFee: number;
+  visitFeeWaiverApplied?: boolean;
   laborFee: number;
   parts: SparePartItem[];
   platformFee: number;
@@ -139,6 +242,10 @@ export interface CompletedDispatchSummary {
   providerId?: string;
   providerName: string;
   providerAvatar: string;
+  partsUsed?: SparePartItem[];
+  laborFee?: number;
+  paymentMethod?: 'upi' | 'cash' | 'card';
+  notes?: string;
 }
 
 export interface ToastNotification {
@@ -153,6 +260,7 @@ export interface LocationCluster {
   id: string;
   name: string;
   area: string;
+  pincode?: string;
   activeProsCount: number;
   avgArrivalMins: number;
   surgeActive?: boolean;

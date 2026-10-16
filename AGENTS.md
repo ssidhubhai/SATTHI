@@ -40,11 +40,14 @@ All external integrations are strictly abstracted inside `/src/services/simulati
 * **Identity & Background Verification**: Badges (e.g., "ITI Diploma", "Demo Screening Passed") are prototype sandbox records. No government (UIDAI/Aadhaar) or police database checks have been run.
 * **Invoicing**: Documents are titled "Service Estimate & Receipt (Demo Simulation)" and carry an explicit GST disclaimer confirming they do not constitute legal tax invoices.
 
-### 3. What is Intentionally NOT Implemented
-* Real payment gateways (Razorpay, Paytm, Stripe).
+### 3. Backend Persistence & Live Database
+* **Firebase Firestore**: Production-ready cloud persistence via Firestore (`dispatches`, `providers`, `users` collections) with bidirectional real-time synchronization (`onSnapshot`) between customer and provider personas.
+* **Dual-PIN Handshake**: 4-digit Arrival PIN (verifying door access) and 4-digit Completion PIN (verifying doorstep cash collection).
+
+### 4. What is Intentionally NOT Implemented
+* Real payment gateways (Razorpay, Paytm, Stripe) — cash-on-doorstep handshake protocol is the primary settlement mechanism.
 * Real telephony/SMS providers (Twilio, Exotel, Gupshup).
-* Real backend databases (PostgreSQL, MongoDB, Cloud SQL, Firebase) — currently running in-memory via React Context with `localStorage` persistence.
-* Live geolocation APIs (HTML5 Geolocation watchPosition or Google Maps Platform live device sensors).
+* Live geolocation device hardware APIs (HTML5 Geolocation watchPosition or Google Maps Platform live device sensors).
 * Native authentication/authorization flows (login, SMS OTP, password reset) — the application uses seamless demo switching between predefined personas (`Priya M.` for resident, `Rahul Kumar` for technician).
 
 ### 4. Current Known Limitations

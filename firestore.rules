@@ -1,0 +1,84 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidDispatch(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.customerId is string && data.customerId.size() <= 128 &&
+             data.customerName is string && data.customerName.size() <= 100 &&
+             data.address is string && data.address.size() <= 300 &&
+             data.cityId is string && data.cityId in ['bengaluru', 'mumbai', 'delhi'] &&
+             data.category is string && data.category in ['electrical', 'plumbing', 'carpentry', 'appliances'] &&
+             data.faultTitle is string && data.faultTitle.size() <= 150 &&
+             data.status is string && data.status in ['DISPATCHED', 'ACCEPTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'] &&
+             data.arrivalPin is string && data.arrivalPin.size() == 4 &&
+             data.completionPin is string && data.completionPin.size() == 4 &&
+             data.totalAmount is number && data.totalAmount >= 0;
+    }
+
+    function isValidProvider(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.category is string &&
+             data.isOnline is bool;
+    }
+
+    function isValidUser(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.cityId is string;
+    }
+
+    // Dispatches collection: real-time emergency orders
+    match /dispatches/{dispatchId} {
+      allow read: if isValidId(dispatchId);
+
+      allow create: if isValidId(dispatchId) &&
+                       isValidDispatch(incoming()) &&
+                       incoming().id == dispatchId &&
+                       incoming().status == 'DISPATCHED';
+
+      allow update: if isValidId(dispatchId) &&
+                       isValidDispatch(incoming()) &&
+                       incoming().id == existing().id &&
+                       // Terminal state lock: completed or cancelled cannot be mutated
+                       !(existing().status in ['COMPLETED', 'CANCELLED']);
+
+      allow delete: if false;
+    }
+
+    // Providers collection
+    match /providers/{providerId} {
+      allow read: if isValidId(providerId);
+      allow create, update: if isValidId(providerId) &&
+                               isValidProvider(incoming()) &&
+                               incoming().id == providerId;
+      allow delete: if false;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isValidId(userId);
+      allow create, update: if isValidId(userId) &&
+                               isValidUser(incoming()) &&
+                               incoming().id == userId;
+      allow delete: if false;
+    }
+  }
+}
